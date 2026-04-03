@@ -8,7 +8,13 @@ load_dotenv()  # Load variables from .env file
 app = Flask(__name__)
 
 # Database connection using environment variable
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///todos.db')
+database_url = os.getenv('DATABASE_URL', 'sqlite:///todos.db')
+
+# Fix Railway's postgres:// to postgresql:// (SQLAlchemy requirement)
+if database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -66,6 +72,5 @@ def delete(id):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+        db.create_all()  # Creates tables if they don't exist
+    app.run(debug=True)
