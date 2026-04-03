@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Tasks</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #F7F6F2;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .app-wrap {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .app-header {
+      margin-bottom: 2rem;
+    }
+    .app-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .app-header p {
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      border: 0.5px solid #e5e5e5;
+      padding: 14px 16px;
+    }
+    .stat-card .num {
+      font-size: 24px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+    .stat-card .lbl {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* Add Task Form */
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .input-row input[type="text"] {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 0.5px solid #ddd;
+      background: #fff;
+      color: #1a1a1a;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .input-row input[type="text"]::placeholder { color: #bbb; }
+    .input-row input[type="text"]:focus {
+      border-color: #7F77DD;
+      box-shadow: 0 0 0 3px rgba(127,119,221,0.15);
+    }
+    .input-row select {
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 0.5px solid #ddd;
+      background: #fff;
+      color: #555;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+    .add-btn {
+      padding: 11px 20px;
+      background: #534AB7;
+      color: #EEEDFE;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .add-btn:hover { background: #7F77DD; }
+
+    /* Section Labels */
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #aaa;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    /* Task Cards */
+    .todo-card {
+      background: #fff;
+      border: 0.5px solid #e8e8e8;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.15s, opacity 0.2s;
+    }
+    .todo-card:hover { border-color: #ccc; }
+    .todo-card.done-card { opacity: 0.5; }
+
+    /* Checkbox */
+    .check-form { display: contents; }
+    .check-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid #ccc;
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      padding: 0;
+    }
+    .check-btn:hover { border-color: #7F77DD; }
+    .check-btn.checked { background: #534AB7; border-color: #534AB7; }
+    .check-btn.checked svg { display: block; }
+    .check-btn svg { display: none; }
+
+    /* Task Text */
+    .todo-text {
+      flex: 1;
+      font-size: 14px;
+      color: #1a1a1a;
+    }
+    .todo-text.strikethrough {
+      text-decoration: line-through;
+      color: #bbb;
+    }
+
+    /* Tags */
+    .tag {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .tag-work     { background: #EEEDFE; color: #3C3489; }
+    .tag-personal { background: #E1F5EE; color: #085041; }
+    .tag-urgent   { background: #FAECE7; color: #712B13; }
+
+    /* Delete Button */
+    .del-form { display: contents; }
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 4px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+    .del-btn:hover { color: #D85A30; }
+
+    /* Divider */
+    .divider {
+      height: 0.5px;
+      background: #e5e5e5;
+      margin: 1.5rem 0 1rem;
+    }
+
+    /* Empty State */
+    .empty {
+      text-align: center;
+      padding: 2rem;
+      color: #bbb;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrap">
+
+  <!-- Header -->
+  <div class="app-header">
+    <h1>My Tasks</h1>
+    <p id="date-label"></p>
+  </div>
+
+  <!-- Stats -->
+  {% set total = todos|length %}
+  {% set done_count = todos|selectattr('done', 'equalto', true)|list|length %}
+  {% set remaining = total - done_count %}
+  <div class="stats-row">
+    <div class="stat-card"><div class="num">{{ total }}</div><div class="lbl">Total</div></div>
+    <div class="stat-card"><div class="num">{{ done_count }}</div><div class="lbl">Completed</div></div>
+    <div class="stat-card"><div class="num">{{ remaining }}</div><div class="lbl">Remaining</div></div>
+  </div>
+
+  <!-- Add Task Form -->
+  <form action="/add" method="POST">
+    <div class="input-row">
+      <input type="text" name="task" placeholder="Add a new task..." required />
+      <select name="tag">
+        <option value="personal">Personal</option>
+        <option value="work">Work</option>
+        <option value="urgent">Urgent</option>
+      </select>
+      <button type="submit" class="add-btn">+ Add</button>
+    </div>
+  </form>
+
+  <!-- Active Tasks -->
+  <p class="section-label">Active</p>
+
+  {% set active_todos = todos|rejectattr('done', 'equalto', true)|list %}
+  {% if active_todos %}
+    {% for todo in active_todos %}
+    <div class="todo-card">
+      <!-- Toggle Done -->
+      <form class="check-form" action="/toggle/{{ todo.id }}" method="POST">
+        <button type="submit" class="check-btn {{ 'checked' if todo.done else '' }}">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6l3 3 5-5" stroke="#EEEDFE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+
+      <span class="todo-text">{{ todo.task }}</span>
+
+      {% if todo.tag %}
+        <span class="tag tag-{{ todo.tag }}">{{ todo.tag|capitalize }}</span>
+      {% endif %}
+
+      <!-- Delete -->
+      <form class="del-form" action="/delete/{{ todo.id }}" method="POST">
+        <button type="submit" class="del-btn" title="Delete">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="empty">No active tasks. Add one above!</p>
+  {% endif %}
+
+  <!-- Completed Tasks -->
+  {% set done_todos = todos|selectattr('done', 'equalto', true)|list %}
+  {% if done_todos %}
+  <div class="divider"></div>
+  <p class="section-label">Completed</p>
+  {% for todo in done_todos %}
+  <div class="todo-card done-card">
+    <form class="check-form" action="/toggle/{{ todo.id }}" method="POST">
+      <button type="submit" class="check-btn checked">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 6l3 3 5-5" stroke="#EEEDFE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+
+    <span class="todo-text strikethrough">{{ todo.task }}</span>
+
+    {% if todo.tag %}
+      <span class="tag tag-{{ todo.tag }}">{{ todo.tag|capitalize }}</span>
+    {% endif %}
+
+    <form class="del-form" action="/delete/{{ todo.id }}" method="POST">
+      <button type="submit" class="del-btn" title="Delete">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+</div>
+
+<script>
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const now = new Date();
+  document.getElementById('date-label').textContent =
+    `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+</script>
+</body>
+</html>
