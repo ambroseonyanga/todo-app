@@ -22,13 +22,19 @@ db = SQLAlchemy(app)
 
 # --- Database Model ---
 class Todo(db.Model):
-    id  = db.Column(db.Integer, primary_key=True)
+    id   = db.Column(db.Integer, primary_key=True)
     task = db.Column(db.String(200), nullable=False)
     done = db.Column(db.Boolean, default=False)
     tag  = db.Column(db.String(50), default='personal')
 
     def __repr__(self):
         return f'<Todo {self.task}>'
+
+
+# Create tables on startup - must be after the model definition
+# This works with both gunicorn (Railway) and flask (local)
+with app.app_context():
+    db.create_all()
 
 
 # --- Routes ---
@@ -71,6 +77,5 @@ def delete(id):
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # Creates tables if they don't exist
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
